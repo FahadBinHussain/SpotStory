@@ -1,14 +1,12 @@
 import os
 import requests
 from PIL import Image, ImageDraw, ImageFont
-import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
+import spotipy
 import io
 from dotenv import load_dotenv
-import argparse
-import tkinter as tk
-from tkinter import messagebox
-from tkinter import simpledialog
+import cloudinary
+import cloudinary.uploader
 
 # Load environment variables from .env file
 load_dotenv()
@@ -17,13 +15,19 @@ load_dotenv()
 SPOTIPY_CLIENT_ID = os.getenv('SPOTIPY_CLIENT_ID')
 SPOTIPY_CLIENT_SECRET = os.getenv('SPOTIPY_CLIENT_SECRET')
 
+# Set up Cloudinary configuration from environment variables
+cloudinary.config(
+  cloud_name = os.getenv('CLOUDINARY_CLOUD_NAME'),
+  api_key = os.getenv('CLOUDINARY_API_KEY'),
+  api_secret = os.getenv('CLOUDINARY_API_SECRET')
+)
+
 # Ensure that the environment variables are loaded
 if not SPOTIPY_CLIENT_ID or not SPOTIPY_CLIENT_SECRET:
     raise ValueError("Missing SPOTIPY_CLIENT_ID or SPOTIPY_CLIENT_SECRET environment variables")
 
 # Set up Spotify client
-sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=SPOTIPY_CLIENT_ID,
-                                                           client_secret=SPOTIPY_CLIENT_SECRET))
+sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=SPOTIPY_CLIENT_ID, client_secret=SPOTIPY_CLIENT_SECRET))
 
 def get_spotify_track_info(track_url):
     track_info = sp.track(track_url)
@@ -57,28 +61,11 @@ def generate_image(track_name, album_cover_url):
     # Add text to image
     draw.text((text_x, text_y), track_name, font=font, fill="white")
 
-    # Save the image
-    image.save('spotstory.png')
+    # Save the image to a BytesIO object
+    image_bytes = io.BytesIO()
+    image.save(image_bytes, format='PNG')
+    image_bytes.seek(0)
 
-def main(track_url=None):
-    if track_url is None:
-        # Create GUI to get track URL
-        root = tk.Tk()
-        root.withdraw()
-        track_url = simpledialog.askstring("Input", "Enter Spotify track URL:", parent=root)
-        if not track_url:
-            messagebox.showerror("Error", "No URL provided")
-            return
-
-    track_name, album_cover_url = get_spotify_track_info(track_url)
-    generate_image(track_name, album_cover_url)
-    print("Image saved as spotstory.png")
-    if track_url is None:
-        messagebox.showinfo("Success", "Image saved as spotstory.png")
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Generate an image from a Spotify track URL.')
-    parser.add_argument('track_url', type=str, nargs='?', help='The Spotify track URL')
-    args = parser.parse_args()
-
-    main(args.track_url)
+    # Upload the image to Cloudinary
+    upload_result = cloudinary.uploader.upload(image_bytes, folder="spotstory")
+    return upload_result['url']

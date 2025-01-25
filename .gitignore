@@ -1,3 +1,4 @@
 .cache
 .env
 *.png
+__pycache__
