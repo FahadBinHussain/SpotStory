@@ -1,0 +1,6 @@
+requests
+pillow
+spotipy
+python-dotenv
+tkinter
+argparse
