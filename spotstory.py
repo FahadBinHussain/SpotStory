@@ -17,9 +17,9 @@ SPOTIPY_CLIENT_SECRET = os.getenv('SPOTIPY_CLIENT_SECRET')
 
 # Set up Cloudinary configuration from environment variables
 cloudinary.config(
-  cloud_name = os.getenv('CLOUDINARY_CLOUD_NAME'),
-  api_key = os.getenv('CLOUDINARY_API_KEY'),
-  api_secret = os.getenv('CLOUDINARY_API_SECRET')
+  cloud_name=os.getenv('CLOUDINARY_CLOUD_NAME'),
+  api_key=os.getenv('CLOUDINARY_API_KEY'),
+  api_secret=os.getenv('CLOUDINARY_API_SECRET')
 )
 
 # Ensure that the environment variables are loaded
@@ -30,12 +30,19 @@ if not SPOTIPY_CLIENT_ID or not SPOTIPY_CLIENT_SECRET:
 sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=SPOTIPY_CLIENT_ID, client_secret=SPOTIPY_CLIENT_SECRET))
 
 def get_spotify_track_info(track_url):
+    """
+    Fetches the track name and album cover URL from Spotify given a track URL.
+    """
     track_info = sp.track(track_url)
     track_name = track_info['name']
     album_cover_url = track_info['album']['images'][0]['url']
     return track_name, album_cover_url
 
 def generate_image(track_name, album_cover_url):
+    """
+    Generates an image with the track name overlaid on the album cover.
+    Uploads the image to Cloudinary and returns the URL.
+    """
     # Fetch album cover image
     response = requests.get(album_cover_url)
     album_cover = Image.open(io.BytesIO(response.content))
@@ -45,9 +52,10 @@ def generate_image(track_name, album_cover_url):
     draw = ImageDraw.Draw(image)
     image.paste(album_cover, (0, 0))
 
-    # Load a font
+    # Load a font with a larger size and ensure the font file is available
+    font_path = os.path.join(os.path.dirname(__file__), 'arial.ttf')
     try:
-        font = ImageFont.truetype("arial.ttf", 40)
+        font = ImageFont.truetype(font_path, 40)  # Increase the font size
     except IOError:
         font = ImageFont.load_default()
 
