@@ -9,6 +9,11 @@ app = Flask(__name__)
 def index():
     return render_template('index.html')
 
+# Health check endpoint
+@app.route('/health', methods=['GET'])
+def health_check():
+    return "OK", 200
+
 # Route for generating the image from a form submission
 @app.route('/generate_image', methods=['POST'])
 def generate_image_form():
