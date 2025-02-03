@@ -33,7 +33,7 @@ def get_spotify_track_info(track_url):
     """
     Fetches the track name and album cover URL from Spotify given a track URL.
     """
-    track_info = sp.track(track_url, timeout=10)
+    track_info = sp.track(track_url)
     track_name = track_info['name']
     album_cover_url = track_info['album']['images'][0]['url']
     return track_name, album_cover_url
@@ -44,7 +44,7 @@ def generate_image(track_name, album_cover_url):
     Uploads the image to Cloudinary and returns the URL.
     """
     # Fetch album cover image
-    response = requests.get(album_cover_url, timeout=10)
+    response = requests.get(album_cover_url)
     album_cover = Image.open(io.BytesIO(response.content))
 
     # Create a new image with the same size as the album cover
