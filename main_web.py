@@ -1,8 +1,28 @@
 from flask import Flask, request, render_template, redirect, url_for
 from spotstory import get_spotify_track_info, generate_image
 import os
+import threading
+import requests
+import time
 
 app = Flask(__name__)
+
+# Warm-up system to prevent cold starts
+def warm_up():
+    time.sleep(10)  # Wait for app to initialize
+    while True:
+        try:
+            # Ping both health check AND a mock Spotify endpoint
+            requests.get(f"http://localhost:5000/health")
+            requests.post(f"http://localhost:5000/generate_image", data={
+                "track_url": "https://open.spotify.com/track/11dFghVXANMlKmJXsNCbNl"  # Sample track
+            }, timeout=10)
+        except Exception as e:
+            pass
+        time.sleep(300)  # 5 minutes
+
+if os.environ.get('WERKZEUG_RUN_MAIN') != 'true':
+    threading.Thread(target=warm_up, daemon=True).start()
 
 # Route for the HTML form
 @app.route('/')
