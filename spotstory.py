@@ -7,6 +7,7 @@ import io
 from dotenv import load_dotenv
 import cloudinary
 import cloudinary.uploader
+from googleapiclient.discovery import build
 
 # Load environment variables from .env file
 load_dotenv()
@@ -28,6 +29,12 @@ if not SPOTIPY_CLIENT_ID or not SPOTIPY_CLIENT_SECRET:
 
 # Set up Spotify client
 sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=SPOTIPY_CLIENT_ID, client_secret=SPOTIPY_CLIENT_SECRET))
+
+# Add YouTube API configuration
+YOUTUBE_API_KEY = os.getenv('YOUTUBE_API_KEY')
+
+# Add YouTube service setup after Spotify client
+youtube = build('youtube', 'v3', developerKey=YOUTUBE_API_KEY)
 
 def get_spotify_track_info(track_url):
     """
@@ -77,3 +84,34 @@ def generate_image(track_name, album_cover_url):
     # Upload the image to Cloudinary
     upload_result = cloudinary.uploader.upload(image_bytes, folder="spotstory")
     return upload_result['url']
+
+def get_youtube_video_info(video_url):
+    """Extracts video title and thumbnail from YouTube URL"""
+    video_id = extract_video_id(video_url)
+    request = youtube.videos().list(
+        part="snippet",
+        id=video_id
+    )
+    response = request.execute()
+    
+    if not response['items']:
+        raise ValueError("Invalid YouTube URL or video not found")
+        
+    snippet = response['items'][0]['snippet']
+    # Get the highest available quality thumbnail
+    thumbnail = snippet['thumbnails'].get('maxres', 
+                         snippet['thumbnails'].get('standard',
+                         snippet['thumbnails'].get('high',
+                         snippet['thumbnails']['default'])))
+
+    return snippet['title'], thumbnail['url'].split('?')[0]
+
+def extract_video_id(url):
+    # Handles various YouTube URL formats
+    if 'youtu.be/' in url:
+        return url.split('youtu.be/')[-1].split('?')[0]
+    if 'v=' in url:
+        return url.split('v=')[-1].split('&')[0]
+    if 'embed/' in url:
+        return url.split('embed/')[-1].split('?')[0]
+    raise ValueError("Invalid YouTube URL format")

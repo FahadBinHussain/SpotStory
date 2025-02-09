@@ -1,5 +1,5 @@
 from flask import Flask, request, render_template, redirect, url_for
-from spotstory import get_spotify_track_info, generate_image
+from spotstory import get_spotify_track_info, generate_image, get_youtube_video_info
 import os
 import threading
 import requests
@@ -41,12 +41,21 @@ def health_check():
 def generate_image_form():
     track_url = request.form.get('track_url')
     if not track_url:
-        return redirect(url_for('index', error='No track URL provided'))
+        return redirect(url_for('index', error='No URL provided'))
 
-    track_name, album_cover_url = get_spotify_track_info(track_url)
-    image_url = generate_image(track_name, album_cover_url)
-
-    return redirect(url_for('show_image', image_url=image_url))
+    try:
+        if 'spotify.com' in track_url:
+            title, image_url = get_spotify_track_info(track_url)
+        elif 'youtube.com' in track_url or 'youtu.be' in track_url:
+            title, image_url = get_youtube_video_info(track_url)
+        else:
+            return redirect(url_for('index', error='Invalid URL - must be Spotify or YouTube'))
+            
+        generated_url = generate_image(title, image_url)
+        return redirect(url_for('show_image', image_url=generated_url))
+        
+    except Exception as e:
+        return redirect(url_for('index', error=str(e)))
 
 # Route to display the generated image
 @app.route('/show_image')
