@@ -1,5 +1,9 @@
 ## Spotstory
 
+<img src="https://wakapi-qt1b.onrender.com/api/badge/fahad/interval:any/project:SpotStory" 
+     alt="Wakapi Time Tracking" 
+     title="Spent more than that amount of time spent on this project">
+
 Spotstory is an open-source project that generates images based on Spotify track information. It provides both a desktop GUI and a web interface.
 
 ### Offline Usage
