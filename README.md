@@ -1,23 +1,23 @@
-## Spotstory
+## SpotStory
 
 <img src="https://wakapi-qt1b.onrender.com/api/badge/fahad/interval:any/project:SpotStory" 
      alt="Wakapi Time Tracking" 
      title="Spent more than that amount of time spent on this project">
 
-Spotstory is an open-source project that generates images based on Spotify track information. It provides both a desktop GUI and a web interface.
+SpotStory is an open-source project that generates images based on Spotify track information. It provides both a desktop GUI and a web interface.
 
 ### Offline Usage
 
-To use Spotstory offline with the desktop GUI:
-
+To use SpotStory offline with the desktop GUI:
 1. Ensure you have Python installed.
 2. Install the required dependencies:
    `pip install -r requirements.txt`
 
 3. Run the desktop application:
 `python main_desktop.py`
-Online Usage
-To use Spotstory online:
+### Online Usage
+
+To use SpotStory online:
 
 Deploy the application to a platform like Render using the provided render.yaml configuration.
 Interact with the web interface by sending POST requests to the /generate_image endpoint with a JSON payload containing the track_url.
