@@ -36,3 +36,9 @@ Ensure you have a .env file with the following variables:
 Code
 SPOTIPY_CLIENT_ID=your_spotify_client_id
 SPOTIPY_CLIENT_SECRET=your_spotify_client_secret
+
+## Contributors
+
+<a href="https://github.com/FahadBinHussain/SpotStory/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=FahadBinHussain/SpotStory" alt="Contributors" />
+</a>
